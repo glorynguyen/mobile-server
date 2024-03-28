@@ -27,7 +27,7 @@ async function fetchHTML(url) {
 // Function to extract data from HTML using Cheerio
 function extractData(html) {
     const $ = cheerio.load(html);
-    const selectedElements = $('.products__product-card'); // Adjust selector as needed
+    const selectedElements = $('a.products__product-card__image-link'); // Adjust selector as needed
     return selectedElements;
     // Example: Extract all links from the page
     const links = [];
