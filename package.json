@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/glorynguyen/mobile-server/issues"
   },
-  "homepage": "https://github.com/glorynguyen/mobile-server#readme"
+  "homepage": "https://github.com/glorynguyen/mobile-server#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12"
+  }
 }
