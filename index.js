@@ -111,6 +111,10 @@ async function downloadFileByUrlInNodeJs(url, options) {
   });
 }
 
+function replaceNewlinesAndTrim(inputString) {
+  return inputString.replace(/\n/g, '').trim();
+}
+
 async function getPatternDetail(url, options) {
   const details = {};
   try {
@@ -118,16 +122,21 @@ async function getPatternDetail(url, options) {
     if (html) {
       const $ = cheerio.load(html);
       const productSummary = $(".product-summary");
+      details.patternName = replaceNewlinesAndTrim($("h1.title").prop("innerText"));
+      details.patternBy = $(".brand>a").prop("innerText").trim();
+      details.patternImage = $("img.sf-image").prop("src");
+      details.yarnWeights = $(`[data-testid="Yarn Weight"]>dd>div>p:not(.yarn-weight-link)`).map(item => { console.log(item) });
       if (productSummary && $(productSummary).attr("data-product-key")) {
         details.productKey = $(productSummary).attr("data-product-key");
-        downloadFileByUrlInNodeJs(
-          `https://www.lovecrafts.com/en-gb/account/library/download/${details.productKey}?userId=4072479`
-        ,options);
+        // downloadFileByUrlInNodeJs(
+        //   `https://www.lovecrafts.com/en-gb/account/library/download/${details.productKey}?userId=4072479`
+        // ,options);
       }
     }
   } catch (error) {
     console.error(`Error fetching HTML from ${url}:`, error);
   }
+  // console.log("Details", details);
   return details;
 }
 
