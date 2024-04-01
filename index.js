@@ -4,6 +4,65 @@ const fs = require("fs");
 const fsasync = require("fs").promises;
 const path = require("path");
 
+YARN_WEIGHT = [{
+  title: 'Thread',
+  key: 'thread'
+},{
+  title: 'Lace',
+  key: 'lace'
+},{
+  title: '1 Ply',
+  key: '1_ply'
+},{
+  title: '2 Ply',
+  key: '2_ply'
+},{
+  title: 'Light Fingering',
+  key: 'light_fingering'
+},{
+  title: 'Fingering',
+  key: 'fingering'
+},{
+  title: '3 Ply',
+  key: '3_ply'
+},{
+  title: '4 Ply',
+  key: '4_ply'
+},{
+  title: '5 Ply',
+  key: '5_ply'
+},{
+  title: '6 Ply',
+  key: '6_ply'
+},{
+  title: 'Sport',
+  key: 'sport'
+},{
+  title: 'DK',
+  key: 'dk'
+},{
+  title: 'Light Worsted',
+  key: 'light_worsted'
+},{
+  title: 'Aran',
+  key: 'aran'
+},{
+  title: 'Worsted',
+  key: 'worsted'
+},{
+  title: 'Heavy worsted',
+  key: 'heavy_worsted'
+},{
+  title: 'Chunky/Bulky',
+  key: 'chunky/bulky'
+},{
+  title: 'Super Chunky/Super Bulky',
+  key: 'super_chunky/super_bulky'
+},{
+  title: 'Varied',
+  key: 'varied'
+}];
+
 async function getCookieFromFile() {
   const filePath = path.join(__dirname, "cookies.txt");
   try {
@@ -125,7 +184,17 @@ async function getPatternDetail(url, options) {
       details.patternName = replaceNewlinesAndTrim($("h1.title").prop("innerText"));
       details.patternBy = $(".brand>a").prop("innerText").trim();
       details.patternImage = $("img.sf-image").prop("src");
-      details.yarnWeights = $(`[data-testid="Yarn Weight"]>dd>div>p:not(.yarn-weight-link)`).map(item => { console.log(item) });
+      const listYarnWeights = [];
+      $(`[data-testid="Yarn Weight"]>dd>div>p:not(.yarn-weight-link)`).map((index,element) => { 
+        const text = $(element)?.prop("innerText")?.trim();
+        if (text) {
+          const key = YARN_WEIGHT.find(item => item?.title?.toLowerCase() === text.toLowerCase())?.key;
+          if (key) {
+            listYarnWeights.push(key);
+          }
+        }
+      });
+      details.yarnWeights = JSON.stringify(listYarnWeights);
       if (productSummary && $(productSummary).attr("data-product-key")) {
         details.productKey = $(productSummary).attr("data-product-key");
         // downloadFileByUrlInNodeJs(
@@ -136,7 +205,6 @@ async function getPatternDetail(url, options) {
   } catch (error) {
     console.error(`Error fetching HTML from ${url}:`, error);
   }
-  // console.log("Details", details);
   return details;
 }
 
@@ -146,11 +214,13 @@ async function webCrawler(url, options) {
   if (html) {
     // This is the list of a elements that we want to extract
     const links = extractPatternItem(html);
+    console.log("Detected", links.length);
     const href = links[0].attribs.href;
     // Check if this link is existed in our system
     // Call api to check if we have crawled this link before
-    console.log("Detected", href);
-    getPatternDetail(href, options);
+    console.log("Get first item", href);
+    const patternDetail = await getPatternDetail(href, options);
+    console.log("detail", patternDetail);
   }
 }
 
